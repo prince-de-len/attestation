@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-https://onlinegdb.com/mtK973kJaF
+https://onlinegdb.com/9souugzeu
 Codestyle: https://learn.microsoft.com/ru-ru/dotnet/csharp/fundamentals/coding-style/coding-conventions
 Название: Базовые понятия языка С#
 Автор: Тимофеев Гордей Евгеньевич
@@ -10,24 +10,24 @@ using System;
 
 class Program
 {
-    static int Multiply(int A, int N)
+    static int Multiply(int a, int n)
     {
-        int Result = 1;
-        for (int Index = 0; Index < N; Index++)
+        int result = 1;
+        for (int index = 0; index < n; ++index)
         {
-            Result *= A;
+            result *= a;
         }
-        return Result;
+        return result;
     }
     static void Main()
     {
         Console.WriteLine("Введите число а:");
-        int A = Convert.ToInt32(Console.ReadLine());
+        int a = Convert.ToInt32(Console.ReadLine());
 
         Console.WriteLine("Введите число n:");
-        int N = Convert.ToInt32(Console.ReadLine());
+        int n = Convert.ToInt32(Console.ReadLine());
 
-        int Result = Multiply(A, N);
+        int Result = Multiply(a, n);
         Console.WriteLine($"Результат: {Result}");
     }
 }
