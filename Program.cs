@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 class SquareMatrix
 {
@@ -23,8 +23,6 @@ class SquareMatrix
         }
     }
 
-
-
     //Далее перегрузки:
     public static SquareMatrix operator +(SquareMatrix matrix1, SquareMatrix matrix2)
     {
@@ -33,7 +31,7 @@ class SquareMatrix
 
         if (Rows != matrix2.Value.GetLength(0) || Columns != matrix2.Value.GetLength(1))
         {
-            throw new InvalidOperationException("Мужик, у тебя матрицы разного размера");
+            throw new SquareMatrixDimensionsException("Матрицы разного размера.", Rows, matrix2.Value.GetLength(0));
         }
 
         int[,] result = new int[Rows, Columns];
@@ -47,7 +45,6 @@ class SquareMatrix
         SquareMatrix NewMatrix = new SquareMatrix(Rows);
         NewMatrix.Matrix = result;
         return NewMatrix;
-        //return new SquareMatrix(Rows) { Matrix = result }; 
     }
 
     public static SquareMatrix operator *(SquareMatrix matrix1, SquareMatrix matrix2)
@@ -58,7 +55,7 @@ class SquareMatrix
         int Columns2 = matrix2.Value.GetLength(1);
         if (Columns1 != Rows2)
         {
-            throw new InvalidOperationException("Нельзя перемножить матрицы. Количество столбцов матрицы 1 не равно количеству строк матрицы 2.");
+            throw new SquareMatrixDimensionsException("Нельзя перемножить матрицы. Количество столбцов матрицы 1 не равно количеству строк матрицы 2.", matrix1.Value.GetLength(0), matrix2.Value.GetLength(0));
         }
         int[,] result = new int[Rows1, Columns2];
 
@@ -236,7 +233,7 @@ class SquareMatrix
         // Проверяем, существует ли обратная матрица (детерминант не равен 0)
         if (CalculateDeterminant(matrix) == 0)
         {
-            throw new InvalidOperationException("Матрица вырожденная, обратной матрицы не существует.");
+            throw new SquareMatrixDimensionsException("Матрица вырожденная, обратной матрицы не существует.");
         }
 
         double Determinant = CalculateDeterminant(matrix);
@@ -262,9 +259,9 @@ class SquareMatrix
         int LenghtOfMatrix = matrix.GetLength(0);
         int[,] Adjoint = new int[LenghtOfMatrix, LenghtOfMatrix];
 
-        for (int IndexOfRow = 0; IndexOfRow < LenghtOfMatrix; IndexOfRow++)
+        for (int IndexOfRow = 0; IndexOfRow < LenghtOfMatrix; ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < LenghtOfMatrix; IndexOfColumn++)
+            for (int IndexOfColumn = 0; IndexOfColumn < LenghtOfMatrix; ++IndexOfColumn)
             {
                 Adjoint[IndexOfRow, IndexOfColumn] = (int)Math.Pow(-1, IndexOfRow + IndexOfColumn) * (int)CalculateDeterminant(GetSubMatrix(matrix, IndexOfRow, IndexOfColumn));
             }
@@ -305,7 +302,7 @@ class SquareMatrix
     public void PrintDeterminant()
     {
         Determinant = CalculateDeterminant(Matrix);
-        Console.WriteLine("Определитель матрицы: " + Determinant);
+        Console.WriteLine(Determinant);
     }
 
     public void PrintInvertMatrix()
@@ -324,11 +321,20 @@ class SquareMatrix
         }
     }
 
+    public void PrintClone()
+    {
+        SquareMatrix СlonedMatrix = (SquareMatrix)Clone();
+        СlonedMatrix.PrintMatrix();
+    }
+
+    public void PrintHashCode()
+    {
+        var HashCode = Matrix.GetHashCode();
+        Console.WriteLine(HashCode);
+    }
 
 
     //Методы ToString(), CompareTo(), Equals(), GetHashCode():
-
-    // Реализация метода ToString()
 
     public override string ToString()
     {
@@ -344,7 +350,6 @@ class SquareMatrix
         return MatrixString;
     }
 
-    // Реализация метода CompareTo()
     public int CompareTo(SquareMatrix other)
     {
         if (other == null)
@@ -357,7 +362,6 @@ class SquareMatrix
         }
         return 0;
     }
-    // Реализация метода Equals()
     public override bool Equals(object obj)
     {
         return Equals(obj as SquareMatrix);
@@ -410,23 +414,25 @@ class SquareMatrix
 
     //Паттерн "прототип" 
 
-    public int[,] NewMatrix { get; set; }
     public object Clone()
     {
-        SquareMatrix newMatrix = new SquareMatrix(NewMatrix.GetLength(0));
-        for (int IndexOfRow = 0; IndexOfRow < NewMatrix.GetLength(0); ++IndexOfRow)
+        SquareMatrix NewMatrix = new SquareMatrix(Matrix.GetLength(0));
+        for (int IndexOfRow = 0; IndexOfRow < Matrix.GetLength(0); ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < NewMatrix.GetLength(1); ++IndexOfColumn)
+            for (int IndexOfColumn = 0; IndexOfColumn < Matrix.GetLength(1); ++IndexOfColumn)
             {
-                newMatrix.NewMatrix[IndexOfRow, IndexOfColumn] = NewMatrix[IndexOfRow, IndexOfColumn];
+                NewMatrix.Matrix[IndexOfRow, IndexOfColumn] = Matrix[IndexOfRow, IndexOfColumn];
             }
         }
-        return newMatrix;
+        return NewMatrix;
     }
 
 }
 class SquareMatrixDimensionsException : Exception
 {
+    public int SizeOfMatrix1 { get; }
+    public int SizeOfMatrix2 { get; }
+
     public SquareMatrixDimensionsException()
     {
     }
@@ -436,9 +442,11 @@ class SquareMatrixDimensionsException : Exception
     {
     }
 
-    public SquareMatrixDimensionsException(string message, Exception inner)
-      : base(message, inner)
+    public SquareMatrixDimensionsException(string message, int sizeOfMatrix1, int sizeOfMatrix2)
+      : base(message)
     {
+        SizeOfMatrix1 = sizeOfMatrix1;
+        SizeOfMatrix2 = sizeOfMatrix2;
     }
 }
 
@@ -446,78 +454,82 @@ class SquareMatrixDimensionsException : Exception
 
 class Program
 {
-    //static void Main(string[] args)
-    //{
-    //    // TODO - HARDCODING
-    //    Console.WriteLine("Введите размер квадратной матрицы (одно число):");
-    //    int SizeOfMatrix1 = int.Parse(Console.ReadLine());
-    //    Console.WriteLine("Введите размер квадратной матрицы (одно число):");
-    //    int SizeOfMatrix2 = int.Parse(Console.ReadLine());
-
-    //    //TODO - HARDCODING
-    //    SquareMatrix ExampleMatrix1 = new SquareMatrix(SizeOfMatrix1);
-    //    SquareMatrix ExampleMatrix2 = new SquareMatrix(SizeOfMatrix2);
-    //    ExampleMatrix1.PrintMatrix();
-    //    Console.WriteLine();
-    //    ExampleMatrix2.PrintMatrix();
-    //    Console.WriteLine();
-    //    ExampleMatrix1.PrintInvertMatrix();
-
-    //}
-    static void Main()
+    static void Main(string[] args)
     {
-        Console.WriteLine("Сколько вам нужно матриц (1 или 2)?");
-        int MatrixCount;
+        int SizeOfMatrix1 = 0;
+        int SizeOfMatrix2 = 0;
 
-        if (!int.TryParse(Console.ReadLine(), out MatrixCount) || (MatrixCount != 1 && MatrixCount != 2))
+        try
         {
-            Console.WriteLine("Некорректный ввод. Пожалуйста, введите 1 или 2.");
-            return;
+            Console.WriteLine("Введите размер первой квадратной матрицы (одно число):");
+            SizeOfMatrix1 = int.Parse(Console.ReadLine());
+            Console.WriteLine("Введите размер второй квадратной матрицы (одно число):");
+            SizeOfMatrix2 = int.Parse(Console.ReadLine());
+        }
+        catch (Exception)
+        {
+            Console.WriteLine($"Ошибка: Вы ничего не ввели!");
         }
 
-        SquareMatrix Matrix1 = ReadMatrixFromConsole();
-        if (MatrixCount == 2)
-        {
-            SquareMatrix Matrix2 = ReadMatrixFromConsole();
-            Console.WriteLine("Введите операцию(+, *, >, < , >= , <= , == , !=, нахождение детерминанта, обратная матрица):");
-            string Operation = Console.ReadLine();
+        SquareMatrix ExampleMatrix1 = new SquareMatrix(SizeOfMatrix1);
+        SquareMatrix ExampleMatrix2 = new SquareMatrix(SizeOfMatrix2);
 
-            switch (Operation)
-            {
-                case "+":
-                    SquareMatrix Sum = Matrix1.Add(Matrix2);
-                    PrintMatrix(Sum);
-                    break;
-                case "*":
-                    SquareMatrix Product = Matrix1.Multiply(Matrix2);
-                    PrintMatrix(Product);
-                    break;
-                // Другие операции...
-                default:
-                    Console.WriteLine("Некорректная операция.");
-                    break;
-            }
-        }
-        else
-        {
-            Console.WriteLine("Введите операцию(true, false, нахождение детерминанта, обратная матрица):");
-            string Operation = Console.ReadLine();
+        Console.WriteLine();
+        ExampleMatrix1.PrintMatrix();
+        Console.WriteLine();
+        ExampleMatrix2.PrintMatrix();
+        Console.WriteLine();
 
-            switch (Operation)
-            {
-                case "нахождение детерминанта":
-                    double Determinant = Matrix1.CalculateDeterminant();
-                    Console.WriteLine("Детерминант матрицы: " + Determinant);
-                    break;
-                case "обратная матрица":
-                    SquareMatrix Inverse = Matrix1.GetInverseMatrix();
-                    PrintMatrix(Inverse);
-                    break;
-                // Другие операции...
-                default:
-                    Console.WriteLine("Некорректная операция.");
-                    break;
-            }
+        try
+        {
+            Console.WriteLine("Обратная первая матрица:");
+            ExampleMatrix1.PrintInvertMatrix();
+            Console.WriteLine();
         }
+        catch (SquareMatrixDimensionsException exception)
+        {
+            Console.WriteLine($"Ошибка: {exception.Message}");
+        }
+        try
+        {
+            Console.WriteLine("Обратная вторая матрица:");
+            ExampleMatrix2.PrintInvertMatrix();
+            Console.WriteLine();
+        }
+        catch (SquareMatrixDimensionsException exception)
+        {
+            Console.WriteLine($"Ошибка: {exception.Message}");
+        }
+
+        Console.WriteLine("Прототип первой матрицы:");
+        ExampleMatrix1.Clone();
+        ExampleMatrix1.PrintClone();
+        Console.WriteLine();
+        try
+        {
+            Console.WriteLine("Сложение матриц:");
+            Console.WriteLine(ExampleMatrix1 + ExampleMatrix2);
+            Console.WriteLine();
+            Console.WriteLine("Произведение матриц:");
+            Console.WriteLine(ExampleMatrix1 * ExampleMatrix2);
+            Console.WriteLine();
+            Console.WriteLine("Сравнение матриц (==):");
+            Console.WriteLine(ExampleMatrix1 == ExampleMatrix2);
+            Console.WriteLine();
+            Console.WriteLine("Сравнение матриц (>):");
+            Console.WriteLine(ExampleMatrix1 == ExampleMatrix2);
+            Console.WriteLine();
+        }
+        catch (SquareMatrixDimensionsException exception)
+        {
+            Console.WriteLine($"Ошибка: {exception.Message}");
+            Console.WriteLine($"Определись с размером! Либо: {exception.SizeOfMatrix1} Либо: {exception.SizeOfMatrix2}");
+        }
+
+        Console.WriteLine("Определитель первой матрицы:");
+        ExampleMatrix1.PrintDeterminant();
+        Console.WriteLine();
+        Console.WriteLine("Хеш код первой матрицы:");
+        ExampleMatrix1.PrintHashCode();
     }
- }
+}
