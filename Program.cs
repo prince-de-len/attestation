@@ -5,20 +5,20 @@ class SquareMatrix
     int[,] Matrix;
     public int[,] Value { get { return Matrix; } }
 
-    public int GetLength { get; set; }
+    public int Length { get; set; }
     public double Determinant { get; set; }
-    static readonly Random random = new Random();
+    static readonly Random Random = new Random();
 
 
     public SquareMatrix(int size)
     {
         Matrix = new int[size, size];
-        for (var rowOfMatrix = 0; rowOfMatrix < Matrix.GetLength(0); ++rowOfMatrix)
+        for (var RowOfMatrix = 0; RowOfMatrix < Matrix.GetLength(0); ++RowOfMatrix)
         {
-            for (var columnOfMatrix = 0; columnOfMatrix < Matrix.GetLength(1); ++columnOfMatrix)
+            for (var ColumnOfMatrix = 0; ColumnOfMatrix < Matrix.GetLength(1); ++ColumnOfMatrix)
             {
-                int randomNumber = random.Next(100);
-                Matrix[rowOfMatrix, columnOfMatrix] = randomNumber;
+                int RandomNumber = Random.Next(100);
+                Matrix[RowOfMatrix, ColumnOfMatrix] = RandomNumber;
             }
         }
     }
@@ -36,16 +36,16 @@ class SquareMatrix
             throw new SquareMatrixDimensionsException("Матрицы разного размера.", Rows, matrix2.Value.GetLength(0));
         }
 
-        int[,] result = new int[Rows, Columns];
+        int[,] MatrixResultOfOperation = new int[Rows, Columns];
         for (int IndexOfRow = 0; IndexOfRow < Rows; ++IndexOfRow)
         {
             for (int IndexOfColumn = 0; IndexOfColumn < Columns; ++IndexOfColumn)
             {
-                result[IndexOfRow, IndexOfColumn] = matrix1.Value[IndexOfRow, IndexOfColumn] + matrix2.Value[IndexOfRow, IndexOfColumn];
+                MatrixResultOfOperation[IndexOfRow, IndexOfColumn] = matrix1.Value[IndexOfRow, IndexOfColumn] + matrix2.Value[IndexOfRow, IndexOfColumn];
             }
         }
         SquareMatrix NewMatrix = new SquareMatrix(Rows);
-        NewMatrix.Matrix = result;
+        NewMatrix.Matrix = MatrixResultOfOperation;
         return NewMatrix;
     }
 
@@ -59,7 +59,7 @@ class SquareMatrix
         {
             throw new SquareMatrixDimensionsException("Нельзя перемножить матрицы. Количество столбцов матрицы 1 не равно количеству строк матрицы 2.", matrix1.Value.GetLength(0), matrix2.Value.GetLength(0));
         }
-        int[,] result = new int[Rows1, Columns2];
+        int[,] MatrixResultOfOperation = new int[Rows1, Columns2];
 
         for (int IndexOfRow1 = 0; IndexOfRow1 < Rows1; ++IndexOfRow1)
         {
@@ -67,13 +67,13 @@ class SquareMatrix
             {
                 for (int IndexOfColumn1 = 0; IndexOfColumn1 < Columns1; ++IndexOfColumn1)
                 {
-                    result[IndexOfRow1, IndexOfColumn2] += matrix1.Value[IndexOfRow1, IndexOfColumn1] * matrix2.Value[IndexOfColumn1, IndexOfColumn2];
+                    MatrixResultOfOperation[IndexOfRow1, IndexOfColumn2] += matrix1.Value[IndexOfRow1, IndexOfColumn1] * matrix2.Value[IndexOfColumn1, IndexOfColumn2];
                 }
             }
         }
 
         SquareMatrix NewMatrix = new SquareMatrix(Rows1);
-        NewMatrix.Matrix = result;
+        NewMatrix.Matrix = MatrixResultOfOperation;
         return NewMatrix;
 
     }
@@ -513,7 +513,6 @@ class Program
         }
 
         Console.WriteLine("Прототип первой матрицы:");
-        ExampleMatrix1.Clone();
         ExampleMatrix1.PrintClone();
         Console.WriteLine();
         try
