@@ -23,6 +23,8 @@ class SquareMatrix
         }
     }
 
+
+
     //Далее перегрузки:
     public static SquareMatrix operator +(SquareMatrix matrix1, SquareMatrix matrix2)
     {
@@ -59,11 +61,11 @@ class SquareMatrix
         }
         int[,] result = new int[Rows1, Columns2];
 
-        for (int IndexOfRow1 = 0; IndexOfRow1 < Rows1; IndexOfRow1++)
+        for (int IndexOfRow1 = 0; IndexOfRow1 < Rows1; ++IndexOfRow1)
         {
-            for (int IndexOfColumn2 = 0; IndexOfColumn2 < Columns2; IndexOfColumn2++)
+            for (int IndexOfColumn2 = 0; IndexOfColumn2 < Columns2; ++IndexOfColumn2)
             {
-                for (int IndexOfColumn1 = 0; IndexOfColumn1 < Columns1; IndexOfColumn1++)
+                for (int IndexOfColumn1 = 0; IndexOfColumn1 < Columns1; ++IndexOfColumn1)
                 {
                     result[IndexOfRow1, IndexOfColumn2] += matrix1.Value[IndexOfRow1, IndexOfColumn1] * matrix2.Value[IndexOfColumn1, IndexOfColumn2];
                 }
@@ -235,14 +237,23 @@ class SquareMatrix
         {
             throw new SquareMatrixDimensionsException("Матрица вырожденная, обратной матрицы не существует.");
         }
-
         double Determinant = CalculateDeterminant(matrix);
+        // Создаем обратную матрицу путем деления каждого элемента присоединенной матрицы на детерминант
+        double[,] InverseMatrix = new double[LenthgtOfMatrix, LenthgtOfMatrix];
+        if (LenthgtOfMatrix == 2)
+        {
+            double multiplier = 1.0 / Determinant;
+
+            InverseMatrix[0, 0] = matrix[1, 1] * multiplier;
+            InverseMatrix[0, 1] = -matrix[0, 1] * multiplier;
+            InverseMatrix[1, 0] = -matrix[1, 0] * multiplier;
+            InverseMatrix[1, 1] = matrix[0, 0] * multiplier;
+            return InverseMatrix;
+        }
 
         // Находим присоединенную матрицу
         int[,] AdjointMatrix = GetAdjointMatrix(matrix);
 
-        // Создаем обратную матрицу путем деления каждого элемента присоединенной матрицы на детерминант
-        double[,] InverseMatrix = new double[LenthgtOfMatrix, LenthgtOfMatrix];
         for (int IndexOfRow = 0; IndexOfRow < LenthgtOfMatrix; ++IndexOfRow)
         {
             for (int IndexOfColumn = 0; IndexOfColumn < LenthgtOfMatrix; ++IndexOfColumn)
@@ -276,9 +287,9 @@ class SquareMatrix
 
         int[,] TransposedMatrix = new int[Columns, Rows];
 
-        for (int IndexOfRow = 0; IndexOfRow < Columns; IndexOfRow++)
+        for (int IndexOfRow = 0; IndexOfRow < Columns; ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < Rows; IndexOfColumn++)
+            for (int IndexOfColumn = 0; IndexOfColumn < Rows; ++IndexOfColumn)
             {
                 TransposedMatrix[IndexOfRow, IndexOfColumn] = matrix[IndexOfColumn, IndexOfRow];
             }
@@ -311,9 +322,9 @@ class SquareMatrix
         int Rows = InvertedMatrix.GetLength(0);
         int Columns = InvertedMatrix.GetLength(1);
 
-        for (int IndexOfRow = 0; IndexOfRow < Rows; IndexOfRow++)
+        for (int IndexOfRow = 0; IndexOfRow < Rows; ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < Columns; IndexOfColumn++)
+            for (int IndexOfColumn = 0; IndexOfColumn < Columns; ++IndexOfColumn)
             {
                 Console.Write(InvertedMatrix[IndexOfRow, IndexOfColumn].ToString("0.000") + "\t");
             }
@@ -339,9 +350,9 @@ class SquareMatrix
     public override string ToString()
     {
         string MatrixString = "";
-        for (int IndexOfRow = 0; IndexOfRow < Value.GetLength(0); IndexOfRow++)
+        for (int IndexOfRow = 0; IndexOfRow < Value.GetLength(0); ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < Value.GetLength(1); IndexOfColumn++)
+            for (int IndexOfColumn = 0; IndexOfColumn < Value.GetLength(1); ++IndexOfColumn)
             {
                 MatrixString += Value[IndexOfRow, IndexOfColumn] + "\t";
             }
@@ -381,9 +392,9 @@ class SquareMatrix
         {
             return false;
         }
-        for (int IndexOfRow = 0; IndexOfRow < this.Value.GetLength(0); IndexOfRow++)
+        for (int IndexOfRow = 0; IndexOfRow < this.Value.GetLength(0); ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < this.Value.GetLength(1); IndexOfColumn++)
+            for (int IndexOfColumn = 0; IndexOfColumn < this.Value.GetLength(1); ++IndexOfColumn)
             {
                 if (this.Value[IndexOfRow, IndexOfColumn] != other.Value[IndexOfRow, IndexOfColumn])
                 {
