@@ -4,11 +4,9 @@ class SquareMatrix
 {
     int[,] _matrix;
     public int[,] Value { get { return _matrix; } }
-
     public int Length { get; set; }
     public double Determinant { get; set; }
     static readonly Random s_random = new Random();
-
 
     public SquareMatrix(int size)
     {
@@ -23,7 +21,7 @@ class SquareMatrix
         }
     }
 
-    //Далее перегрузки:
+    // Далее перегрузки:
     public static SquareMatrix operator +(SquareMatrix matrix1, SquareMatrix matrix2)
     {
         int Rows = matrix1.Value.GetLength(0);
@@ -69,11 +67,9 @@ class SquareMatrix
                 }
             }
         }
-
         SquareMatrix NewMatrix = new SquareMatrix(Rows1);
         NewMatrix._matrix = MatrixResultOfOperation;
         return NewMatrix;
-
     }
     public static bool operator >(SquareMatrix matrix1, SquareMatrix matrix2)
     {
@@ -169,7 +165,6 @@ class SquareMatrix
     }
 
     // ПРОЧИЕ МЕТОДЫ
-
     public static explicit operator int[,](SquareMatrix inputMatrix) // Приведение типов
     {
         return inputMatrix._matrix;
@@ -330,9 +325,7 @@ class SquareMatrix
         Console.WriteLine(HashCode);
     }
 
-
     // Методы ToString(), CompareTo(), Equals(), GetHashCode():
-
     public override string ToString()
     {
         string MatrixString = "";
@@ -424,6 +417,7 @@ class SquareMatrix
     }
 
 }
+
 class SquareMatrixDimensionsException : Exception
 {
     public int SizeOfMatrix1 { get; }
