@@ -2,28 +2,26 @@ using System;
 
 class SquareMatrix
 {
-    int[,] Matrix;
-    public int[,] Value { get { return Matrix; } }
+    int[,] _matrix;
+    public int[,] Value { get { return _matrix; } }
 
     public int Length { get; set; }
     public double Determinant { get; set; }
-    static readonly Random Random = new Random();
+    static readonly Random s_random = new Random();
 
 
     public SquareMatrix(int size)
     {
-        Matrix = new int[size, size];
-        for (var RowOfMatrix = 0; RowOfMatrix < Matrix.GetLength(0); ++RowOfMatrix)
+        _matrix = new int[size, size];
+        for (var RowOfMatrix = 0; RowOfMatrix < _matrix.GetLength(0); ++RowOfMatrix)
         {
-            for (var ColumnOfMatrix = 0; ColumnOfMatrix < Matrix.GetLength(1); ++ColumnOfMatrix)
+            for (var ColumnOfMatrix = 0; ColumnOfMatrix < _matrix.GetLength(1); ++ColumnOfMatrix)
             {
-                int RandomNumber = Random.Next(100);
-                Matrix[RowOfMatrix, ColumnOfMatrix] = RandomNumber;
+                int RandomNumber = s_random.Next(100);
+                _matrix[RowOfMatrix, ColumnOfMatrix] = RandomNumber;
             }
         }
     }
-
-
 
     //Далее перегрузки:
     public static SquareMatrix operator +(SquareMatrix matrix1, SquareMatrix matrix2)
@@ -45,7 +43,7 @@ class SquareMatrix
             }
         }
         SquareMatrix NewMatrix = new SquareMatrix(Rows);
-        NewMatrix.Matrix = MatrixResultOfOperation;
+        NewMatrix._matrix = MatrixResultOfOperation;
         return NewMatrix;
     }
 
@@ -73,7 +71,7 @@ class SquareMatrix
         }
 
         SquareMatrix NewMatrix = new SquareMatrix(Rows1);
-        NewMatrix.Matrix = MatrixResultOfOperation;
+        NewMatrix._matrix = MatrixResultOfOperation;
         return NewMatrix;
 
     }
@@ -170,34 +168,22 @@ class SquareMatrix
         return !(matrix1 == matrix2);
     }
 
-    //ПРОЧИЕ МЕТОДЫ
+    // ПРОЧИЕ МЕТОДЫ
 
-    public static int[,] ConvertMatrixToDouble(double[,] inputMatrix) // Приведение типов
+    public static explicit operator int[,](SquareMatrix inputMatrix) // Приведение типов
     {
-        int Rows = inputMatrix.GetLength(0);
-        int Columns = inputMatrix.GetLength(1);
-        int[,] outputMatrix = new int[Rows, Columns];
-
-        for (int IndexOfRow = 0; IndexOfRow < Rows; ++IndexOfRow)
-        {
-            for (int IndexOfColumn = 0; IndexOfColumn < Columns; ++IndexOfColumn)
-            {
-                outputMatrix[IndexOfRow, IndexOfColumn] = (int)inputMatrix[IndexOfRow, IndexOfColumn]; // просто отбрасываем дробную часть
-            }
-        }
-
-        return outputMatrix;
+        return inputMatrix._matrix;
     }
 
     public double CalculateDeterminant(int[,] matrix)
     {
-        int LenghtOfMatrix = matrix.GetLength(0);
-        if (LenghtOfMatrix == 2)
+        int LengthOfMatrix = matrix.GetLength(0);
+        if (LengthOfMatrix == 2)
         {
             return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
         }
         double Determinant = 0;
-        for (int IndexOfRow = 0; IndexOfRow < LenghtOfMatrix; ++IndexOfRow)
+        for (int IndexOfRow = 0; IndexOfRow < LengthOfMatrix; ++IndexOfRow)
         {
             Determinant += Math.Pow(-1, IndexOfRow) * matrix[0, IndexOfRow] * CalculateDeterminant(GetSubMatrix(matrix, 0, IndexOfRow));
         }
@@ -206,10 +192,10 @@ class SquareMatrix
 
     private int[,] GetSubMatrix(int[,] matrix, int excludeRow, int excludeCol)
     {
-        int LenghtOfMatrix = matrix.GetLength(0);
-        int[,] subMatrix = new int[LenghtOfMatrix - 1, LenghtOfMatrix - 1];
+        int LengthOfMatrix = matrix.GetLength(0);
+        int[,] SubMatrix = new int[LengthOfMatrix - 1, LengthOfMatrix - 1];
         int Row = -1;
-        for (int IndexOfRow = 0; IndexOfRow < LenghtOfMatrix; ++IndexOfRow)
+        for (int IndexOfRow = 0; IndexOfRow < LengthOfMatrix; ++IndexOfRow)
         {
             if (IndexOfRow == excludeRow)
             {
@@ -217,20 +203,20 @@ class SquareMatrix
             }
             ++Row;
             int Column = -1;
-            for (int IndexOfColumn = 0; IndexOfColumn < LenghtOfMatrix; ++IndexOfColumn)
+            for (int IndexOfColumn = 0; IndexOfColumn < LengthOfMatrix; ++IndexOfColumn)
             {
                 if (IndexOfColumn == excludeCol) continue;
-                subMatrix[Row, ++Column] = matrix[IndexOfRow, IndexOfColumn];
+                SubMatrix[Row, ++Column] = matrix[IndexOfRow, IndexOfColumn];
             }
         }
-        return subMatrix;
+        return SubMatrix;
     }
 
 
 
     public double[,] InvertMatrix(int[,] matrix)
     {
-        int LenthgtOfMatrix = matrix.GetLength(0);
+        int LengthOfMatrix = matrix.GetLength(0);
 
         // Проверяем, существует ли обратная матрица (детерминант не равен 0)
         if (CalculateDeterminant(matrix) == 0)
@@ -239,8 +225,8 @@ class SquareMatrix
         }
         double Determinant = CalculateDeterminant(matrix);
         // Создаем обратную матрицу путем деления каждого элемента присоединенной матрицы на детерминант
-        double[,] InverseMatrix = new double[LenthgtOfMatrix, LenthgtOfMatrix];
-        if (LenthgtOfMatrix == 2)
+        double[,] InverseMatrix = new double[LengthOfMatrix, LengthOfMatrix];
+        if (LengthOfMatrix == 2)
         {
             double multiplier = 1.0 / Determinant;
 
@@ -254,9 +240,9 @@ class SquareMatrix
         // Находим присоединенную матрицу
         int[,] AdjointMatrix = GetAdjointMatrix(matrix);
 
-        for (int IndexOfRow = 0; IndexOfRow < LenthgtOfMatrix; ++IndexOfRow)
+        for (int IndexOfRow = 0; IndexOfRow < LengthOfMatrix; ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < LenthgtOfMatrix; ++IndexOfColumn)
+            for (int IndexOfColumn = 0; IndexOfColumn < LengthOfMatrix; ++IndexOfColumn)
             {
                 InverseMatrix[IndexOfRow, IndexOfColumn] = AdjointMatrix[IndexOfRow, IndexOfColumn] / Determinant;
             }
@@ -267,12 +253,12 @@ class SquareMatrix
 
     private int[,] GetAdjointMatrix(int[,] matrix)
     {
-        int LenghtOfMatrix = matrix.GetLength(0);
-        int[,] Adjoint = new int[LenghtOfMatrix, LenghtOfMatrix];
+        int LengthOfMatrix = matrix.GetLength(0);
+        int[,] Adjoint = new int[LengthOfMatrix, LengthOfMatrix];
 
-        for (int IndexOfRow = 0; IndexOfRow < LenghtOfMatrix; ++IndexOfRow)
+        for (int IndexOfRow = 0; IndexOfRow < LengthOfMatrix; ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < LenghtOfMatrix; ++IndexOfColumn)
+            for (int IndexOfColumn = 0; IndexOfColumn < LengthOfMatrix; ++IndexOfColumn)
             {
                 Adjoint[IndexOfRow, IndexOfColumn] = (int)Math.Pow(-1, IndexOfRow + IndexOfColumn) * (int)CalculateDeterminant(GetSubMatrix(matrix, IndexOfRow, IndexOfColumn));
             }
@@ -300,11 +286,11 @@ class SquareMatrix
 
     public void PrintMatrix()
     {
-        for (int IndexOfRow = 0; IndexOfRow < Matrix.GetLength(0); ++IndexOfRow)
+        for (int IndexOfRow = 0; IndexOfRow < _matrix.GetLength(0); ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < Matrix.GetLength(1); ++IndexOfColumn)
+            for (int IndexOfColumn = 0; IndexOfColumn < _matrix.GetLength(1); ++IndexOfColumn)
             {
-                Console.Write(Matrix[IndexOfRow, IndexOfColumn] + " ");
+                Console.Write(_matrix[IndexOfRow, IndexOfColumn] + " ");
             }
             Console.WriteLine();
         }
@@ -312,13 +298,13 @@ class SquareMatrix
 
     public void PrintDeterminant()
     {
-        Determinant = CalculateDeterminant(Matrix);
+        Determinant = CalculateDeterminant(_matrix);
         Console.WriteLine(Determinant);
     }
 
     public void PrintInvertMatrix()
     {
-        double[,] InvertedMatrix = InvertMatrix(Matrix);
+        double[,] InvertedMatrix = InvertMatrix(_matrix);
         int Rows = InvertedMatrix.GetLength(0);
         int Columns = InvertedMatrix.GetLength(1);
 
@@ -340,12 +326,12 @@ class SquareMatrix
 
     public void PrintHashCode()
     {
-        var HashCode = Matrix.GetHashCode();
+        var HashCode = _matrix.GetHashCode();
         Console.WriteLine(HashCode);
     }
 
 
-    //Методы ToString(), CompareTo(), Equals(), GetHashCode():
+    // Методы ToString(), CompareTo(), Equals(), GetHashCode():
 
     public override string ToString()
     {
@@ -423,16 +409,15 @@ class SquareMatrix
         }
     }
 
-    //Паттерн "прототип" 
-
+    // Паттерн "прототип" 
     public object Clone()
     {
-        SquareMatrix NewMatrix = new SquareMatrix(Matrix.GetLength(0));
-        for (int IndexOfRow = 0; IndexOfRow < Matrix.GetLength(0); ++IndexOfRow)
+        SquareMatrix NewMatrix = new SquareMatrix(_matrix.GetLength(0));
+        for (int IndexOfRow = 0; IndexOfRow < _matrix.GetLength(0); ++IndexOfRow)
         {
-            for (int IndexOfColumn = 0; IndexOfColumn < Matrix.GetLength(1); ++IndexOfColumn)
+            for (int IndexOfColumn = 0; IndexOfColumn < _matrix.GetLength(1); ++IndexOfColumn)
             {
-                NewMatrix.Matrix[IndexOfRow, IndexOfColumn] = Matrix[IndexOfRow, IndexOfColumn];
+                NewMatrix._matrix[IndexOfRow, IndexOfColumn] = _matrix[IndexOfRow, IndexOfColumn];
             }
         }
         return NewMatrix;
@@ -461,25 +446,57 @@ class SquareMatrixDimensionsException : Exception
     }
 }
 
-
-
 class Program
 {
     static void Main(string[] args)
     {
+        string InputSizeOfMatrix1 = "";
+        string InputSizeOfMatrix2 = "";
         int SizeOfMatrix1 = 0;
         int SizeOfMatrix2 = 0;
+        bool InputSuccess = false;
 
-        try
+        while (!InputSuccess)
         {
-            Console.WriteLine("Введите размер первой квадратной матрицы (одно число):");
-            SizeOfMatrix1 = int.Parse(Console.ReadLine());
-            Console.WriteLine("Введите размер второй квадратной матрицы (одно число):");
-            SizeOfMatrix2 = int.Parse(Console.ReadLine());
-        }
-        catch (Exception)
-        {
-            Console.WriteLine($"Ошибка: Вы ничего не ввели!");
+            try
+            {
+                InputSizeOfMatrix1 = ""; // обнуление для корректной работы обработчика исключений
+                InputSizeOfMatrix1 = "";
+                SizeOfMatrix1 = 0;
+                SizeOfMatrix2 = 0;
+
+                Console.WriteLine("Введите размер первой квадратной матрицы (одно число):");
+                InputSizeOfMatrix1 = (Console.ReadLine());
+                SizeOfMatrix1 = int.Parse(InputSizeOfMatrix1);
+
+                Console.WriteLine("Введите размер второй квадратной матрицы (одно число):");
+                InputSizeOfMatrix2 = (Console.ReadLine());
+                SizeOfMatrix2 = int.Parse(InputSizeOfMatrix2);
+                if (SizeOfMatrix1 != 0 &&  SizeOfMatrix2 != 0)
+                {
+                    InputSuccess = true;
+                }
+            }
+            catch (FormatException)
+            {
+                if (InputSizeOfMatrix1.Length == 0) 
+                {
+                    Console.WriteLine($"Ошибка: Вы ничего не ввели для 1 матрицы!");
+                }
+                else if (InputSizeOfMatrix1.Length != 0 && SizeOfMatrix1 == 0) 
+                {
+                    Console.WriteLine($"Ошибка: Вы ввели буквы для 1 матрицы!");
+                }
+                else if (InputSizeOfMatrix2.Length == 0) 
+                {
+                    Console.WriteLine($"Ошибка: Вы ничего не ввели для 2 матрицы!");
+                }
+                else if (InputSizeOfMatrix2.Length != 0 && SizeOfMatrix2 == 0) 
+                {
+                    Console.WriteLine($"Ошибка: Вы ввели буквы для 2 матрицы!");
+                }
+                Console.WriteLine();
+            }
         }
 
         SquareMatrix ExampleMatrix1 = new SquareMatrix(SizeOfMatrix1);
@@ -489,6 +506,18 @@ class Program
         ExampleMatrix1.PrintMatrix();
         Console.WriteLine();
         ExampleMatrix2.PrintMatrix();
+        Console.WriteLine();
+
+        Console.WriteLine("Приведение типов второй матрицы (из SquareMatrix в int[,])");
+        int[,] ExampleMatrixToInt = (int[,])ExampleMatrix2;
+        for (int RowOfMatrix = 0; RowOfMatrix < ExampleMatrixToInt.GetLength(0); RowOfMatrix++) // Вывод матрицы int[,]
+        {
+            for (int ColumnOfMatrix = 0; ColumnOfMatrix < ExampleMatrixToInt.GetLength(0); ColumnOfMatrix++)
+            {
+                Console.Write(ExampleMatrixToInt[RowOfMatrix, ColumnOfMatrix] + "\t");
+            }
+            Console.WriteLine();
+        }
         Console.WriteLine();
 
         try
@@ -534,6 +563,7 @@ class Program
         {
             Console.WriteLine($"Ошибка: {exception.Message}");
             Console.WriteLine($"Определись с размером! Либо: {exception.SizeOfMatrix1} Либо: {exception.SizeOfMatrix2}");
+            Console.WriteLine();
         }
 
         Console.WriteLine("Определитель первой матрицы:");
