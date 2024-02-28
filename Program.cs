@@ -5,7 +5,6 @@ class SquareMatrix
 {
     int[,] _matrix;
     public int[,] Value { get { return _matrix; } }
-    public double Determinant { get; set; }
     static readonly Random s_random = new Random();
 
     public SquareMatrix(int size)
@@ -60,7 +59,7 @@ class SquareMatrix
         int ColumnCount1 = matrix1.Value.GetLength(1);
         int RowCount2 = matrix2.Value.GetLength(0);
         int ColumnCount2 = matrix2.Value.GetLength(1);
-        if (ColumnCount1 != RowCount2)
+        if (ColumnCount1 != RowCount2) 
         {
             throw new SquareMatrixDimensionsException("Нельзя перемножить матрицы. Количество столбцов матрицы 1 не равно количеству строк матрицы 2.", matrix1.Value.GetLength(0), matrix2.Value.GetLength(0));
         }
@@ -304,7 +303,7 @@ class SquareMatrix
 
     public void PrintDeterminant()
     {
-        Determinant = CalculateDeterminant(_matrix);
+        Double Determinant = CalculateDeterminant(_matrix);
         Console.WriteLine(Determinant);
     }
 
